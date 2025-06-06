@@ -15,7 +15,7 @@ event_manager = {
 def on_merge_request_reviewed(mr_review_entity: MergeRequestReviewEntity):
     # 发送IM消息通知
     im_msg = f"""
-### 🔀 {mr_review_entity.project_name}: Merge Request
+### 🔀 {mr_review_entity.project_group}{mr_review_entity.project_name}: Merge Request
 
 #### 合并请求信息:
 - **提交者:** {mr_review_entity.author}
@@ -32,6 +32,7 @@ def on_merge_request_reviewed(mr_review_entity: MergeRequestReviewEntity):
 {mr_review_entity.review_result}
     """
     notifier.send_notification(content=im_msg, msg_type='markdown', title='Merge Request Review',
+                                  project_group=mr_review_entity.project_group,
                                   project_name=mr_review_entity.project_name,
                                   url_slug=mr_review_entity.url_slug)
 
@@ -41,7 +42,7 @@ def on_merge_request_reviewed(mr_review_entity: MergeRequestReviewEntity):
 
 def on_push_reviewed(entity: PushReviewEntity):
     # 发送IM消息通知
-    im_msg = f"### 🚀 {entity.project_name}: Push\n\n"
+    im_msg = f"### 🚀 {entity.project_group}{entity.project_name}: Push\n\n"
     im_msg += "#### 提交记录:\n"
 
     for commit in entity.commits:
@@ -59,7 +60,8 @@ def on_push_reviewed(entity: PushReviewEntity):
     if entity.review_result:
         im_msg += f"#### AI Review 结果: \n {entity.review_result}\n\n"
     notifier.send_notification(content=im_msg, msg_type='markdown',
-                                  title=f"{entity.project_name} Push Event", project_name=entity.project_name,
+                                  title=f"{entity.project_name} Push Event", 
+                                  project_group=entity.project_group, project_name=entity.project_name,
                                   url_slug=entity.url_slug)
 
     # 记录到数据库

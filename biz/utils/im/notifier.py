@@ -3,7 +3,7 @@ from biz.utils.im.feishu import FeishuNotifier
 from biz.utils.im.wecom import WeComNotifier
 
 
-def send_notification(content, msg_type='text', title="通知", is_at_all=False, project_name=None, url_slug=None):
+def send_notification(content, msg_type='text', title="通知", is_at_all=False,  project_group=None, project_name=None, url_slug=None):
     """
     发送通知消息到配置的平台(钉钉和企业微信)
     :param content: 消息内容
@@ -25,4 +25,4 @@ def send_notification(content, msg_type='text', title="通知", is_at_all=False,
     # 飞书推送
     feishu_notifier = FeishuNotifier()
     feishu_notifier.send_message(content=content, msg_type=msg_type, title=title, is_at_all=is_at_all,
-                                 project_name=project_name, url_slug=url_slug)
+                                project_group=project_group ,project_name=project_name, url_slug=url_slug)

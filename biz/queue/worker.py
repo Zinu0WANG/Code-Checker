@@ -42,6 +42,7 @@ def handle_push_event(webhook_data: dict, gitlab_token: str, gitlab_url: str, gi
 
         event_manager['push_reviewed'].send(PushReviewEntity(
             project_name=webhook_data['project']['name'],
+            project_group=webhook_data['project']['namespace'],
             author=webhook_data['user_username'],
             branch=webhook_data['project']['default_branch'],
             updated_at=int(datetime.now().timestamp()),  # 当前时间
@@ -101,6 +102,7 @@ def handle_merge_request_event(webhook_data: dict, gitlab_token: str, gitlab_url
         event_manager['merge_request_reviewed'].send(
             MergeRequestReviewEntity(
                 project_name=webhook_data['project']['name'],
+                project_group=webhook_data['project']['namespace']['name'],
                 author=webhook_data['user']['username'],
                 source_branch=webhook_data['object_attributes']['source_branch'],
                 target_branch=webhook_data['object_attributes']['target_branch'],
