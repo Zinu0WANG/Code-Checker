@@ -4,6 +4,18 @@ import os
 import re
 from biz.utils.log import logger
 
+def slugify_name(name: str) -> str:
+        """
+        将名称中的非字母和数字字符（如空格、-、.、/ 等）都替换为下划线，并转换为大写。
+        """
+        if not isinstance(name, str):
+            name = str(name)
+        # 替换所有非字母和数字为下划线
+        name = re.sub(r'[^a-zA-Z0-9]', '_', name)
+       
+        return name.upper()
+
+
 
 class FeishuNotifier:
     def __init__(self, webhook_url=None):
@@ -13,6 +25,8 @@ class FeishuNotifier:
         """
         self.default_webhook_url = webhook_url or os.environ.get('FEISHU_WEBHOOK_URL', '')
         self.enabled = os.environ.get('FEISHU_ENABLED', '0') == '1'
+
+    
 
     def _get_webhook_url(self, project_group=None, project_name=None, url_slug=None):
         """
@@ -29,8 +43,10 @@ class FeishuNotifier:
                 raise ValueError("未提供项目名称，且未设置默认的 飞书 Webhook URL。")
 
         # 构造目标键
-        target_key_project = f"FEISHU_WEBHOOK_URL_{project_group.upper()}_{project_name.upper()}"
+        target_key_project = f"FEISHU_WEBHOOK_URL_{slugify_name(project_group.upper())}_{slugify_name(project_name.upper())}"
+        target_key_group = f"FEISHU_WEBHOOK_URL_{slugify_name(project_group.upper())}"
         target_key_url_slug = f"FEISHU_WEBHOOK_URL_{url_slug.upper()}"
+        print(target_key_project)
 
         # 遍历环境变量
         for env_key, env_value in os.environ.items():
@@ -39,6 +55,12 @@ class FeishuNotifier:
                 return env_value  # 找到项目名称对应的 Webhook URL，直接返回
             if env_key_upper == target_key_url_slug:
                 return env_value  # 找到 GitLab URL 对应的 Webhook URL，直接返回
+            
+        for env_key, env_value in os.environ.items():
+            env_key_upper = env_key.upper()
+            if env_key_upper == target_key_group:
+                return env_value  # 若无项目对应的 Webhook UPL，则找到组名称对应的 Webhook URL，直接返回
+            
 
         # 如果未找到匹配的环境变量，降级使用全局的 Webhook URL
         if self.default_webhook_url:
